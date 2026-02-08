@@ -3,7 +3,8 @@ global with sharing class ApplyFrameContractPrice implements vlocity_cmt.Vlocity
         if (methodName.equals('priceItems')){
             return priceItems(input,output,options);
         }
-        return true;
+        return true; 
+	#added for checking in org : branch-feature/story-1
     }
      
     private Boolean priceItems(Map<String, Object> inputMap, Map<String, Object> outputMap, Map<String, Object> optionsMap){
