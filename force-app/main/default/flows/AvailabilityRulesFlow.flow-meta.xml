@@ -32,6 +32,6 @@
     <interviewLabel>Availability Rules Flow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Availability Rules Flow</label>
     <processType>AutoLaunchedFlow</processType>
-    <startElementReference>Rule1</startElementReference>
+    <startElementReference>Rule1</startElementReference> 
     <status>active</status>
 </Flow>
