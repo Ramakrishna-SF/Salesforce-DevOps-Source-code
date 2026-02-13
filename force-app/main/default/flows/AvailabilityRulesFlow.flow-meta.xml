@@ -33,5 +33,5 @@
     <label>Availability Rules Flow</label>
     <processType>AutoLaunchedFlow</processType>
     <startElementReference>Rule1</startElementReference>
-    <status>Draft</status>
+    <status>active</status>
 </Flow>
