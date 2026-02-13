@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    BRANCH_ALLOWED = "feature/"
+  }
+
   stages {
 
     stage('Checkout') {
@@ -12,14 +16,25 @@ pipeline {
     stage('Branch Validation') {
       steps {
         script {
-          if (!env.BRANCH_NAME.startsWith('feature/')) {
-            error("Only feature/* branches allowed")
+          if (!env.BRANCH_NAME.startsWith(BRANCH_ALLOWED)) {
+            error("❌ Only feature/* branches are allowed")
           }
         }
       }
     }
 
-    stage('Salesforce Validate - Vlocity') {
+    stage('Salesforce Auth') {
+      steps {
+        withCredentials([string(credentialsId: 'sf-auth-url', variable: 'SF_AUTH_URL')]) {
+          sh '''
+            echo "$SF_AUTH_URL" > authfile
+            sf org login sfdx-url --sfdx-url-file authfile --alias devhub
+          '''
+        }
+      }
+    }
+
+    stage('Vlocity Validate (CI)') {
       steps {
         sh 'vlocity -job validateJob.yaml validate'
       }
@@ -33,7 +48,7 @@ pipeline {
       }
     }
 
-    stage('Salesforce Deploy - Vlocity') {
+    stage('Vlocity Deploy (CD)') {
       steps {
         sh 'vlocity -job deployJob.yaml deploy'
       }
