@@ -38,13 +38,16 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        sonar-scanner \
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=ocity-cicd \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL
-                    '''
+                        -Dsonar.projectName=ocity-cicd
+                        """
+                    }
                 }
             }
         }
