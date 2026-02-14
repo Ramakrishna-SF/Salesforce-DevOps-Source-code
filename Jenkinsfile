@@ -44,7 +44,7 @@ pipeline {
                         sonar-scanner \
                         -Dsonar.projectKey=ocity-cicd \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://13.51.249.69:9000/
+                        -Dsonar.host.url=$SONAR_HOST_URL
                     '''
                 }
             }
