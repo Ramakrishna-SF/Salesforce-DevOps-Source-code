@@ -21,22 +21,10 @@ pipeline {
             steps {
                 sh '''
                     echo "$SF_AUTH_URL" > auth.txt
-                    
-                    # Clean any existing alias first
-                    sf org logout ci-org || true
-                    
-                    # Login with explicit instance URL handling
-                    sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org --no-prompt
-                    
-                    # Verify the connection
-                    sf org display ci-org --verbose
-                    
-                    # Set target username explicitly for vlocity
-                    echo "vlocity.sfdx.username=ci-org" >> sfdx-project.json
+                    sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org
                 '''
             }
         }
-
 
         stage('Vlocity Validate (Feature Branch Only)') {
             when {
