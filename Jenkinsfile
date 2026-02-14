@@ -10,7 +10,7 @@ pipeline {
         stage('Branch Validation') {
             steps {
                 script {
-                    if (!env.BRANCH_NAME.startsWith("feature/") && env.BANCH_NAME != "main") {
+                    if (!env.BRANCH_NAME.startsWith("feature/") && env.BRANCH_NAME != "main") {
                         error("❌ Only feature/* or main branches are allowed!")
                     }
                 }
