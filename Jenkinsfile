@@ -11,7 +11,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -40,12 +39,31 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=ocity-cicd \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://13.51.249.69:9000/
-                    '''
+                    script {
+                        def scannerHome = "${env.WORKSPACE}/tools/sonar-scanner"
+                        
+                        sh """
+                            # Cache SonarScanner in workspace (persists across builds)
+                            if [ ! -f "${scannerHome}/bin/sonar-scanner" ]; then
+                                echo "📥 Downloading SonarScanner..."
+                                mkdir -p ${scannerHome}/..
+                                cd /tmp
+                                wget -q -O sonar.zip \\
+                                    https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                                unzip -o sonar.zip -d ${scannerHome}/..
+                                chmod +x ${scannerHome}/bin/sonar-scanner
+                                echo "✅ SonarScanner cached in workspace"
+                            else
+                                echo "✅ Using cached SonarScanner"
+                            fi
+                            
+                            export PATH="\${PATH}:${scannerHome}/bin"
+                            sonar-scanner \\
+                                -Dsonar.projectKey=ocity-cicd \\
+                                -Dsonar.sources=. \\
+                                -Dsonar.host.url=http://13.51.249.69:9000/
+                        """
+                    }
                 }
             }
         }
@@ -63,7 +81,9 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh 'vlocity packDeploy -job deployJob.yaml -dryRun'
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml -dryRun
+                '''
             }
         }
 
@@ -72,12 +92,21 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh 'vlocity packDeploy -job deployJob.yaml'
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml
+                '''
             }
         }
     }
 
     post {
+        always {
+            script {
+                sh '''
+                    rm -f auth.txt || true
+                '''
+            }
+        }
         success {
             echo "✅ Pipeline completed successfully."
         }
