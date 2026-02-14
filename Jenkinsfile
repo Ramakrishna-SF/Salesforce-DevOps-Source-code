@@ -39,34 +39,43 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    script {
-                        def scannerHome = "${env.WORKSPACE}/tools/sonar-scanner"
+                    sh '''
+                        # Robust SonarScanner caching with dynamic folder detection
+                        SONAR_CACHE="${WORKSPACE}/tools/sonar-scanner"
                         
-                        sh """
-                            # Cache SonarScanner in workspace (persists across builds)
-                            if [ ! -f "${scannerHome}/bin/sonar-scanner" ]; then
-                                echo "📥 Downloading SonarScanner..."
-                                mkdir -p ${scannerHome}/..
-                                cd /tmp
-                                wget -q -O sonar.zip \\
-                                    https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                                unzip -o sonar.zip -d ${scannerHome}/..
-                                chmod +x ${scannerHome}/bin/sonar-scanner
-                                echo "✅ SonarScanner cached in workspace"
-                            else
-                                echo "✅ Using cached SonarScanner"
-                            fi
+                        if [ ! -f "$SONAR_CACHE/bin/sonar-scanner" ]; then
+                            echo "📥 Downloading SonarScanner..."
+                            mkdir -p "$(dirname "$SONAR_CACHE")"
                             
-                            export PATH="\${PATH}:${scannerHome}/bin"
-                            sonar-scanner \\
-                                -Dsonar.projectKey=ocity-cicd \\
-                                -Dsonar.sources=. \\
-                                -Dsonar.host.url=http://13.51.249.69:9000/
-                        """
-                    }
+                            # Download to temp and find actual unzipped folder
+                            cd /tmp
+                            wget -q -O sonar.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                            unzip -o sonar.zip
+                            
+                            # Find the actual sonar-scanner folder (handles any version folder name)
+                            SONAR_FOLDER=$(find . -type d -name "sonar-scanner*" -maxdepth 1 | head -1)
+                            if [ -n "$SONAR_FOLDER" ]; then
+                                mv "$SONAR_FOLDER" "$SONAR_CACHE"
+                                chmod +x "$SONAR_CACHE/bin/sonar-scanner"
+                                echo "✅ SonarScanner installed to $SONAR_CACHE"
+                            else
+                                echo "❌ Failed to find sonar-scanner folder after unzip"
+                                exit 1
+                            fi
+                        else
+                            echo "✅ Using cached SonarScanner at $SONAR_CACHE"
+                        fi
+                        
+                        export PATH="$SONAR_CACHE/bin:$PATH"
+                        sonar-scanner \\
+                            -Dsonar.projectKey=ocity-cicd \\
+                            -Dsonar.sources=. \\
+                            -Dsonar.host.url=http://13.51.249.69:9000/
+                    '''
                 }
             }
         }
+
 
         stage('Quality Gate') {
             steps {
