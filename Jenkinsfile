@@ -40,13 +40,14 @@ pipeline {
             steps {
                 script {
                     def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=ocity-cicd \
                         -Dsonar.sources=. \
                         -Dsonar.projectName=ocity-cicd \
-                        -Dsonar.host.url=$SONAR_HOST_URL
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
                         """
                     }
                 }
