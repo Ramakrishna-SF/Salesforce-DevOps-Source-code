@@ -1,57 +1,53 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    BRANCH_ALLOWED = "feature/"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        SF_AUTH_URL = credentials('sf-auth-url')
     }
 
-    stage('Branch Validation') {
-      steps {
-        script {
-          if (!env.BRANCH_NAME.startsWith(BRANCH_ALLOWED)) {
-            error("❌ Only feature/* branches are allowed")
-          }
+    stages {
+
+        stage('Branch Validation') {
+            steps {
+                script {
+                    if (!env.BRANCH_NAME.startsWith("feature/") && env.BANCH_NAME != "main") {
+                        error("❌ Only feature/* or main branches are allowed!")
+                    }
+                }
+            }
         }
-      }
-    }
 
-    stage('Salesforce Auth') {
-      steps {
-        withCredentials([string(credentialsId: 'sf-auth-url', variable: 'SF_AUTH_URL')]) {
-          sh '''
-            echo "$SF_AUTH_URL" > authfile
-            sf org login sfdx-url --sfdx-url-file authfile --alias devhub
-          '''
+        stage('Salesforce Auth') {
+            steps {
+                sh '''
+                    echo "$SF_AUTH_URL" > auth.txt
+                    sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org
+                '''
+            }
         }
-      }
-    }
 
-    stage('Vlocity Validate (CI)') {
-      steps {
-        sh 'vlocity -job validateJob.yaml validate'
-      }
-    }
-
-    stage('SonarQube Analysis') {
-      steps {
-        withSonarQubeEnv('sonarqube-server') {
-          sh 'sonar-scanner'
+        stage('Vlocity Validate (Feature Branch Only)') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("feature/") }
+            }
+            steps {
+                sh 'vlocity packDeploy -job ci.yaml -dryRun'
+            }
         }
-      }
-    }
 
-    stage('Vlocity Deploy (CD)') {
-      steps {
-        sh 'vlocity -job deployJob.yaml deploy'
-      }
+        stage('SonarQube Analysis') {
+            steps {
+                sh 'sonar-scanner'
+            }
+        }
+
+        stage('Vlocity Deploy (Main Only)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh 'vlocity packDeploy -job ci.yaml'
+            }
+        }
     }
-  }
 }
