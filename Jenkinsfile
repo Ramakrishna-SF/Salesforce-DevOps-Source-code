@@ -31,7 +31,7 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh 'vlocity packDeploy -job ci.yaml -dryRun'
+                sh 'vlocity packDeploy -job deployJob.yaml -dryRun'
             }
         }
 
@@ -46,7 +46,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh 'vlocity packDeploy -job ci.yaml'
+                sh 'vlocity packDeploy -job deployJob.yaml'
             }
         }
     }
