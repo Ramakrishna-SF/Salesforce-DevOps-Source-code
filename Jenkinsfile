@@ -1,57 +1,102 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    BRANCH_ALLOWED = "feature/"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        SF_AUTH_URL = credentials('sf-auth-url')
     }
 
-    stage('Branch Validation') {
-      steps {
-        script {
-          if (!env.BRANCH_NAME.startsWith(BRANCH_ALLOWED)) {
-            error("❌ Only feature/* branches are allowed")
-          }
+    options {
+        skipDefaultCheckout(true)
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage('Salesforce Auth') {
-      steps {
-        withCredentials([string(credentialsId: 'sf-auth-url', variable: 'SF_AUTH_URL')]) {
-          sh '''
-            echo "$SF_AUTH_URL" > authfile
-            sf org login sfdx-url --sfdx-url-file authfile --alias devhub
-          '''
+        stage('Branch Validation') {
+            steps {
+                script {
+                    if (!(env.BRANCH_NAME.startsWith("feature/") || env.BRANCH_NAME == "main")) {
+                        error("❌ Only feature/* or main branches are allowed.")
+                    }
+                }
+            }
         }
-      }
-    }
 
-    stage('Vlocity Validate (CI)') {
-      steps {
-        sh 'vlocity -job validateJob.yaml validate'
-      }
-    }
-
-    stage('SonarQube Analysis') {
-      steps {
-        withSonarQubeEnv('sonarqube-server') {
-          sh 'sonar-scanner'
+        stage('Salesforce Auth') {
+            steps {
+                sh '''
+                    echo "$SF_AUTH_URL" > auth.txt
+                    sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org --set-default
+                '''
+            }
         }
-      }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=ocity-cicd \
+                        -Dsonar.sources=. \
+                        -Dsonar.projectName=ocity-cicd
+                        """
+                    }
+                }
+            }
+        }
+
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Vlocity Validate (Feature Only)') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("feature/") }
+            }
+            steps {
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml -dryRun
+                '''
+            }
+        }
+
+        stage('Vlocity Deploy (Main Only)') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml
+                '''
+            }
+        }
     }
 
-    stage('Vlocity Deploy (CD)') {
-      steps {
-        sh 'vlocity -job deployJob.yaml deploy'
-      }
+    post {
+        always {
+            script {
+                sh '''
+                    rm -f auth.txt || true
+                '''
+            }
+        }
+        success {
+            echo "✅ Pipeline completed successfully."
+        }
+        failure {
+            echo "❌ Pipeline failed."
+        }
     }
-  }
 }
