@@ -11,7 +11,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -50,6 +49,7 @@ pipeline {
             }
         }
 
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -63,7 +63,9 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh 'vlocity packDeploy -job deployJob.yaml -dryRun'
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml -dryRun
+                '''
             }
         }
 
@@ -72,12 +74,21 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh 'vlocity packDeploy -job deployJob.yaml'
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml
+                '''
             }
         }
     }
 
     post {
+        always {
+            script {
+                sh '''
+                    rm -f auth.txt || true
+                '''
+            }
+        }
         success {
             echo "✅ Pipeline completed successfully."
         }
