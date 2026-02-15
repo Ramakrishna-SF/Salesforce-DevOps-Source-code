@@ -66,13 +66,12 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                withCredentials([string(credentialsId: 'SF_AUTH_URL', variable: 'SF_AUTH_URL')]) {    
-                    sh '''
-                        vlocity packDeploy -job deployJob.yaml -dryRun
-                    '''
+                sh '''
+                    vlocity packDeploy -job deployJob.yaml -dryRun
+                '''
             }
         }
-        }
+
 
         stage('Vlocity Deploy (Main Only)') {
             when {
