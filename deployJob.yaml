@@ -1,7 +1,7 @@
 projectPath: .
 autoUpdateSettings: true
 useVlocityTriggers: false
-
+searchPattern: 'vlocity/*'
 # ✅ CORRECT NAMESPACE
 vlocityNamespace: vlocity 
 
