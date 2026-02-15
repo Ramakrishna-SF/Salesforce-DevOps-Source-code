@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'Node16'
+    }
+
     environment {
         SF_AUTH_URL = credentials('sf-auth-url')
     }
@@ -11,19 +15,25 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Branch Validation') {
+        stage('Verify Node Version') {
             steps {
-                script {
-                    if (!(env.BRANCH_NAME.startsWith("feature/") || env.BRANCH_NAME == "main")) {
-                        error("❌ Only feature/* or main branches are allowed.")
-                    }
-                }
+                sh 'node -v'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    npm init -y
+                    npm install vlocity
+                '''
             }
         }
 
@@ -32,10 +42,10 @@ pipeline {
                 sh '''
                     echo "$SF_AUTH_URL" > auth.txt
                     sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org --set-default
+                    sf org display
                 '''
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -61,17 +71,27 @@ pipeline {
             }
         }
 
+        stage('Deploy Salesforce Metadata') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    sf project deploy start --source-dir force-app
+                '''
+            }
+        }
+
         stage('Vlocity Validate (Feature Only)') {
             when {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
                 sh '''
-                    vlocity packDeploy -job deployJob.yaml -dryRun
+                    npx vlocity packDeploy -job deployJob.yaml -dryRun
                 '''
             }
         }
-
 
         stage('Vlocity Deploy (Main Only)') {
             when {
@@ -79,7 +99,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    vlocity packDeploy -job deployJob.yaml
+                    npx vlocity packDeploy -job deployJob.yaml
                 '''
             }
         }
@@ -87,11 +107,7 @@ pipeline {
 
     post {
         always {
-            script {
-                sh '''
-                    rm -f auth.txt || true
-                '''
-            }
+            sh 'rm -f auth.txt || true'
         }
         success {
             echo "✅ Pipeline completed successfully."
