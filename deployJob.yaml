@@ -2,19 +2,17 @@ projectPath: .
 autoUpdateSettings: true
 useVlocityTriggers: false
 searchPattern: 'vlocity/*'
-# ✅ CORRECT NAMESPACE
+# ✅ Exclude node_modules explicitly
+ignoreDirNames: ['node_modules']
 vlocityNamespace: vlocity 
 
-# Essential CI/CD settings
 maxDepth: 1
 expandMultiLineMerge: false
 treatExpansionErrorsAsWarnings: true
 failOnMissingFiles: false
 
-# Performance
 compileOnBuild: true
 maxConcurrentAPICalls: 5
 
-# OmniScript activation
 activationSettings:
   OmniScript: true

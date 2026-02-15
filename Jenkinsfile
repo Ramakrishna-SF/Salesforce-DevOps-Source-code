@@ -21,13 +21,6 @@ pipeline {
                 checkout scm
             }
         }
-
-        stage('Verify Node Version') {
-            steps {
-                sh 'node -v'
-            }
-        }
-
         stage('Salesforce Auth') {
             steps {
                 sh '''
@@ -61,12 +54,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Check Default Org') {
-            steps {
-                sh 'sf org list'
-            }
-}
 
         stage('Vlocity Validate (Feature Only)') {
             when {
