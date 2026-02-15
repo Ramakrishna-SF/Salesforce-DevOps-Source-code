@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'Node16'
+        nodejs 'Node18'
     }
 
     environment {
@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Vlocity CLI') {
             steps {
                 sh '''
                     npm init -y
@@ -70,24 +70,11 @@ pipeline {
                 }
             }
         }
-        stage('Install Vlocity CLI') {
-            steps {
-                sh '''
-                    npm init -y
-                    npm install vlocity
-                '''
-            }
-        }
-
 
         stage('Deploy Salesforce Metadata') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
-                sh '''
-                    sf project deploy start --source-dir force-app
-                '''
+                sh 'sf project deploy start --source-dir force-app'
             }
         }
 
@@ -96,20 +83,14 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh '''
-                    npx vlocity packDeploy -job deployJob.yaml -dryRun
-                '''
+                sh 'npx vlocity packDeploy -job deployJob.yaml -dryRun'
             }
         }
 
         stage('Vlocity Deploy (Main Only)') {
-            when {
-                branch 'main'
-            }
+            when { branch 'main' }
             steps {
-                sh '''
-                    npx vlocity packDeploy -job deployJob.yaml
-                '''
+                sh 'npx vlocity packDeploy -job deployJob.yaml'
             }
         }
     }
@@ -117,12 +98,6 @@ pipeline {
     post {
         always {
             sh 'rm -f auth.txt || true'
-        }
-        success {
-            echo "✅ Pipeline completed successfully."
-        }
-        failure {
-            echo "❌ Pipeline failed."
         }
     }
 }
