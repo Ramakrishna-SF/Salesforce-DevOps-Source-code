@@ -1,17 +1,20 @@
 projectPath: .
 autoUpdateSettings: true
 useVlocityTriggers: false
-vlocityNamespace: vlocity_ins
-# Essential additions for CI/CD
+
+# ✅ CORRECT NAMESPACE
+vlocityNamespace: vlocity 
+
+# Essential CI/CD settings
 maxDepth: 1
 expandMultiLineMerge: false
 treatExpansionErrorsAsWarnings: true
 failOnMissingFiles: false
 
-# Performance optimization
+# Performance
 compileOnBuild: true
 maxConcurrentAPICalls: 5
 
-# Specific for OmniScript deployment
+# OmniScript activation
 activationSettings:
   OmniScript: true
