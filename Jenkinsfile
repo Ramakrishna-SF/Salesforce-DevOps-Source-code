@@ -70,6 +70,15 @@ pipeline {
                 }
             }
         }
+        stage('Install Vlocity CLI') {
+            steps {
+                sh '''
+                    npm init -y
+                    npm install vlocity
+                '''
+            }
+        }
+
 
         stage('Deploy Salesforce Metadata') {
             when {
