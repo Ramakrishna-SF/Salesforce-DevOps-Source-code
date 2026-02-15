@@ -1,7 +1,6 @@
 projectPath: .
 autoUpdateSettings: true
 useVlocityTriggers: false
-sfdxAuthUrl: ${SF_AUTH_URL}
 loginUrl: https://login.salesforce.com
 vlocityNamespace: vlocity_ins
 # Essential additions for CI/CD
