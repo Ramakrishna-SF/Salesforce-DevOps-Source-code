@@ -1,11 +1,7 @@
-projectPath: .
+projectPath: vlocity
 autoUpdateSettings: true
 useVlocityTriggers: false
-searchPattern: 'vlocity/*'
-# ✅ Exclude node_modules explicitly
-ignoreDirNames: ['node_modules']
 vlocityNamespace: vlocity 
-
 maxDepth: 1
 expandMultiLineMerge: false
 treatExpansionErrorsAsWarnings: true
