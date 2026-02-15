@@ -72,6 +72,7 @@ pipeline {
                     '''
             }
         }
+        }
 
         stage('Vlocity Deploy (Main Only)') {
             when {
@@ -100,5 +101,4 @@ pipeline {
             echo "❌ Pipeline failed."
         }
     }
-}
 }
