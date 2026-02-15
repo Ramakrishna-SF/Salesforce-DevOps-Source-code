@@ -25,10 +25,10 @@
         "businessCategory": "",
         "businessEvent": "",
         "controlWidth": 12,
-        "iconName": "Jenkins",
+        "iconName": "Jenkins-URL",
         "iconPosition": "left",
         "iconVariant": "",
-        "label": "Jenkins",
+        "label": "Jenkins-URL",
         "loginAction": "login",
         "message": {
         },
@@ -49,7 +49,7 @@
     },
     "%vlocity_namespace%__ReusableOmniScript__c": false,
     "%vlocity_namespace%__Type__c": "Navigate Action",
-    "Name": "Jenkins",
+    "Name": "Jenkins-URL",
     "VlocityDataPackType": "SObject",
     "VlocityRecordSObjectType": "%vlocity_namespace%__Element__c",
     "VlocityRecordSourceKey": "%vlocity_namespace%__Element__c/%vlocity_namespace%__OmniScript__c/DevOps/Navigator/English/Jenkins"

@@ -60,7 +60,7 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh 'vlocity -sfdx.username ci-org -job deployJob.yaml packDeploy'
+                sh 'vlocity -sfdx.username ci-org -job deployJob.yaml packDeploy -dryRun'
             }
         }
 
@@ -73,7 +73,7 @@ pipeline {
         stage('Vlocity Deploy (Main Only)') {
             when { branch 'main' }
             steps {
-                sh 'npx vlocity packDeploy -job deployJob.yaml'
+                sh 'vlocity -sfdx.username ci-org -job deployJob.yaml packDeploy'
             }
         }
     }
