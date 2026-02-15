@@ -71,12 +71,11 @@ pipeline {
             }
         }
 
-        stage('Deploy Salesforce Metadata') {
-            when { branch 'main' }
+        stage('Check Default Org') {
             steps {
-                sh 'sf project deploy start --source-dir force-app'
+                sh 'sf org list'
             }
-        }
+}
 
         stage('Vlocity Validate (Feature Only)') {
             when {
@@ -87,6 +86,12 @@ pipeline {
             }
         }
 
+        stage('Deploy Salesforce Metadata') {
+            when { branch 'main' }
+            steps {
+                sh 'sf project deploy start --source-dir force-app'
+            }
+        }
         stage('Vlocity Deploy (Main Only)') {
             when { branch 'main' }
             steps {

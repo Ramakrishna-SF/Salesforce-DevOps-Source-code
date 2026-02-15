@@ -1,7 +1,6 @@
 projectPath: .
 autoUpdateSettings: true
 useVlocityTriggers: false
-loginUrl: https://login.salesforce.com
 vlocityNamespace: vlocity_ins
 # Essential additions for CI/CD
 maxDepth: 1
