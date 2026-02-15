@@ -60,6 +60,15 @@ pipeline {
                 }
             }
         }
+        stage('Install Vlocity CLI') {
+            steps {
+                sh '''
+                    npm init -y
+                    npm install vlocity
+                '''
+            }
+        }
+
 
         stage('Vlocity Validate (Feature Only)') {
             when {
@@ -67,7 +76,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    vlocity packDeploy -job deployJob.yaml -dryRun
+                    npx vlocity packDeploy -job deployJob.yaml -dryRun
                 '''
             }
         }
@@ -79,7 +88,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    vlocity packDeploy -job deployJob.yaml
+                    npx vlocity packDeploy -job deployJob.yaml
                 '''
             }
         }
