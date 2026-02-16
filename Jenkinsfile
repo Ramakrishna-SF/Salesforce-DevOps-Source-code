@@ -69,34 +69,41 @@ pipeline {
             }
         }
     }
-        post {
-            success {
-                slackSend(
-                    channel: '#devops',
-                    message: """
-        🚀 *Deployment Successful*
+     post {
+        success {
+            script {
+                if (env.BRANCH_NAME == 'main') {
+                    slackSend(
+                        channel: '#devops',
+                        message: """
+    🚀 *Deployment Successful*
 
-        *Branch:* ${env.BRANCH_NAME}
-        *Status:* SUCCESS ✅
-        *View Pipeline:* ${env.BUILD_URL}
-
-        """
-                )
-            }
-            failure {
-                slackSend(
-                    channel: '#devops',
-                    message: """
-        🔴 *Deployment Failed*
-
-        *Branch:* ${env.BRANCH_NAME}
-        *Status:* FAILED ❌
-        *View Pipeline:* ${env.BUILD_URL}
-
-        """
-                )
+    *Branch:* ${env.BRANCH_NAME}
+    *Status:* SUCCESS ✅
+    *View Pipeline:* ${env.BUILD_URL}
+    """
+                    )
+                }
             }
         }
+        failure {
+            script {
+                if (env.BRANCH_NAME == 'main') {
+                    slackSend(
+                        channel: '#devops',
+                        message: """
+    🔴 *Deployment Failed*
+
+    *Branch:* ${env.BRANCH_NAME}
+    *Status:* FAILED ❌
+    *View Pipeline:* ${env.BUILD_URL}
+    """
+                    )
+                }
+            }
+        }
+    }
+    
 
 
 }
