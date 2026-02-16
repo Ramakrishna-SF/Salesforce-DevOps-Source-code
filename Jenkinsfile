@@ -80,7 +80,8 @@ pipeline {
 
     *Branch:* ${env.BRANCH_NAME}
     *Status:* SUCCESS ✅
-    *View Pipeline:* ${env.BUILD_URL}
+    *PR:* ${env.CHANGE_ID ?: "Merged Directly to Main"}
+    *Blue Ocean:* ${env.JENKINS_URL}blue/organizations/jenkins/${env.JOB_NAME}/detail/${env.BRANCH_NAME}/${env.BUILD_NUMBER}/pipeline
     """
                     )
                 }
@@ -96,7 +97,8 @@ pipeline {
 
     *Branch:* ${env.BRANCH_NAME}
     *Status:* FAILED ❌
-    *View Pipeline:* ${env.BUILD_URL}
+    *PR:* ${env.CHANGE_ID ?: "Merged Directly to Main"}
+    *Blue Ocean:* ${env.JENKINS_URL}blue/organizations/jenkins/${env.JOB_NAME}/detail/${env.BRANCH_NAME}/${env.BUILD_NUMBER}/pipeline
     """
                     )
                 }
