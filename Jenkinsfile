@@ -55,7 +55,7 @@ pipeline {
             steps {
                 sh '''
                     if [ -d "force-app" ]; then
-                        sf project deploy start --source-dir force-app
+                        sf project deploy start --source-dir force-app --test-level RunLocalTests --wait 60
                     else
                         echo "✅ No Salesforce metadata to deploy - Vlocity only pipeline"
                     fi
