@@ -22,7 +22,6 @@ pipeline {
                 sh '''
                     echo "$SF_AUTH_URL" > auth.txt
                     sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org --set-default
-                    sf org display
                 '''
             }
         }
@@ -64,10 +63,3 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            sh 'rm -f auth.txt || true'
-        }
-    }
-}
