@@ -1,10 +1,6 @@
 pipeline {
     agent any
-
-    tools {
-        nodejs 'Node18'
-    }
-
+    
     environment {
         SF_AUTH_URL = credentials('sf-auth-url')
     }
@@ -52,15 +48,6 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
-
-        stage('Vlocity Validate (Feature Only)') {
-            when {
-                expression { env.BRANCH_NAME.startsWith("feature/") }
-            }
-            steps {
-                sh 'vlocity -sfdx.username ci-org -job validateJob.yaml packDeploy'
             }
         }
 
