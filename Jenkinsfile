@@ -69,19 +69,34 @@ pipeline {
             }
         }
     }
-    post {
-    success {
-        slackSend(
-            channel: '#devops',
-            message: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})"
-        )
-    }
-    failure {
-        slackSend(
-            channel: '#devops',
-            message: "❌ FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})"
-        )
-    }
-}
+        post {
+            success {
+                slackSend(
+                    channel: '#devops',
+                    message: """
+        🚀 *Deployment Successful*
+
+        *Branch:* ${env.BRANCH_NAME}
+        *Status:* SUCCESS ✅
+        *View Pipeline:* ${env.BUILD_URL}
+
+        """
+                )
+            }
+            failure {
+                slackSend(
+                    channel: '#devops',
+                    message: """
+        🔴 *Deployment Failed*
+
+        *Branch:* ${env.BRANCH_NAME}
+        *Status:* FAILED ❌
+        *View Pipeline:* ${env.BUILD_URL}
+
+        """
+                )
+            }
+        }
+
 
 }
