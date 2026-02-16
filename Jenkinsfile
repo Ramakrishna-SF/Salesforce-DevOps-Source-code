@@ -69,5 +69,19 @@ pipeline {
             }
         }
     }
+    post {
+    success {
+        slackSend(
+            channel: '#devops',
+            message: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})"
+        )
+    }
+    failure {
+        slackSend(
+            channel: '#devops',
+            message: "❌ FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (${env.BRANCH_NAME})"
+        )
+    }
+}
 
 }
