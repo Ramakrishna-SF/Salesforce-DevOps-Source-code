@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'Node18'
+    }
+
     environment {
         SF_AUTH_URL = credentials('sf-auth-url')
     }
@@ -11,31 +15,21 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
-        stage('Branch Validation') {
-            steps {
-                script {
-                    if (!(env.BRANCH_NAME.startsWith("feature/") || env.BRANCH_NAME == "main")) {
-                        error("❌ Only feature/* or main branches are allowed.")
-                    }
-                }
-            }
-        }
-
         stage('Salesforce Auth') {
             steps {
                 sh '''
                     echo "$SF_AUTH_URL" > auth.txt
                     sf org login sfdx-url --sfdx-url-file auth.txt --alias ci-org --set-default
+                    sf org display
                 '''
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -66,37 +60,27 @@ pipeline {
                 expression { env.BRANCH_NAME.startsWith("feature/") }
             }
             steps {
-                sh '''
-                    vlocity packDeploy -job deployJob.yaml -dryRun
-                '''
+                sh 'vlocity -sfdx.username ci-org -job validateJob.yaml packDeploy'
             }
         }
 
-        stage('Vlocity Deploy (Main Only)') {
-            when {
-                branch 'main'
-            }
+        stage('Deploy Salesforce Metadata') {
+            when { branch 'main' }
             steps {
-                sh '''
-                    vlocity packDeploy -job deployJob.yaml
-                '''
+                sh 'sf project deploy start --source-dir force-app'
+            }
+        }
+        stage('Vlocity Deploy (Main Only)') {
+            when { branch 'main' }
+            steps {
+                sh 'vlocity -sfdx.username ci-org -job deployJob.yaml packDeploy'
             }
         }
     }
 
     post {
         always {
-            script {
-                sh '''
-                    rm -f auth.txt || true
-                '''
-            }
-        }
-        success {
-            echo "✅ Pipeline completed successfully."
-        }
-        failure {
-            echo "❌ Pipeline failed."
+            sh 'rm -f auth.txt || true'
         }
     }
 }

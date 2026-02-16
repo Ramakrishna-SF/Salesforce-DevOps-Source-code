@@ -1,17 +1,14 @@
-projectPath: .
+projectPath: vlocity
 autoUpdateSettings: true
 useVlocityTriggers: false
-
-# Essential additions for CI/CD
+vlocityNamespace: vlocity 
 maxDepth: 1
 expandMultiLineMerge: false
 treatExpansionErrorsAsWarnings: true
 failOnMissingFiles: false
 
-# Performance optimization
 compileOnBuild: true
 maxConcurrentAPICalls: 5
 
-# Specific for OmniScript deployment
 activationSettings:
   OmniScript: true
