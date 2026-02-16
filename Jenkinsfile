@@ -53,7 +53,13 @@ pipeline {
         stage('Deploy Salesforce Metadata') {
             when { branch 'main' }
             steps {
-                sh 'sf project deploy start --source-dir force-app'
+                sh '''
+                    if [ -d "force-app" ]; then
+                        sf project deploy start --source-dir force-app
+                    else
+                        echo "✅ No Salesforce metadata to deploy - Vlocity only pipeline"
+                    fi
+                    '''
             }
         }
         stage('Vlocity Deploy (Main Only)') {
