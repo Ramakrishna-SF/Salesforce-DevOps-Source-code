@@ -95,7 +95,6 @@ pipeline {
 
     *Branch:* ${env.BRANCH_NAME}
     *Status:* SUCCESS ✅
-    *PR:* ${env.CHANGE_ID}
     *View Pipeline:* ${env.BUILD_URL}    
     """
                     )
@@ -111,7 +110,6 @@ pipeline {
     🔴 *Deployment Failed*
 
     *Branch:* ${env.BRANCH_NAME}
-    *Status:* FAILED ❌
     *PR:* ${env.CHANGE_ID}
     *View Pipeline:* ${env.BUILD_URL} 
     """
