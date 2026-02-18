@@ -6,9 +6,11 @@ maxDepth: 1
 expandMultiLineMerge: false
 treatExpansionErrorsAsWarnings: true
 failOnMissingFiles: false
-
+ignoreAllErrors: false
+continueAfterError: false
 compileOnBuild: true
 maxConcurrentAPICalls: 5
 
 activationSettings:
   OmniScript: true
+
