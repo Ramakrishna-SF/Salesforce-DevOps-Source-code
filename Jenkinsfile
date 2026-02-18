@@ -51,12 +51,15 @@ pipeline {
         }
 
         stage('Salesforce Validation'){
+            when {
+                expression { env.BRANCH_NAME != 'main' }
+            }
             steps {
                 sh '''
                     if [-d "force-app"]; then
                         sf project deploy start --source-dir force-app --dry-run
                     else
-                        echo"No salesforce components found"
+                        echo "No salesforce components found"
                     fi
                     '''
             }
