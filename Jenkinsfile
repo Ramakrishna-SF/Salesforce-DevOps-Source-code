@@ -50,6 +50,18 @@ pipeline {
             }
         }
 
+        stage('Salesforce Validation'){
+            steps {
+                sh '''
+                    if [-d "force-app"]; then
+                        sf project deploy start --source-dir force-app --dry-run
+                    else
+                        echo"No salesforce components found"
+                    fi
+                    '''
+            }
+        }
+
         stage('Deploy Salesforce Metadata') {
             when { branch 'main' }
             steps {
