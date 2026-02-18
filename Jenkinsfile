@@ -110,7 +110,7 @@ pipeline {
     🔴 *Deployment Failed*
 
     *Branch:* ${env.BRANCH_NAME}
-    *PR:* ${env.CHANGE_ID}
+    *Status:* FAILED ❌
     *View Pipeline:* ${env.BUILD_URL} 
     """
                     )
