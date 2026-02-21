@@ -58,7 +58,7 @@ pipeline {
             steps {
                 sh '''
                     if [ -d "force-app" ]; then
-                        sf project deploy start --source-dir force-app --dry-run
+                        sf project deploy start --source-dir force-app --test-level RunSpecifiedTests --tests AccountHelperTest  --dry-run
                     else
                         echo "No salesforce components found"
                     fi
@@ -71,7 +71,7 @@ pipeline {
             steps {
                 sh '''
                     if [ -d "force-app" ]; then
-                        sf project deploy start --source-dir force-app
+                        sf project deploy start --source-dir force-app --test-level RunSpecifiedTests --tests AccountHelperTest
                     else
                         echo "✅ No Salesforce metadata to deploy - Vlocity only pipeline"
                     fi
